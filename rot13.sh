@@ -169,9 +169,48 @@ decode() {
 	exit 1
 }
 
+get_ua_cmd() {
+
+    log get_ua START
+
+    REG_PATH="HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist"
+
+    # Query the registry
+    KEYS=$(cmd.exe /c "reg query \"$REG_PATH\ /s" 2>/dev/null | tr -d '\r')
+    echo "$KEYS"
+
+    log get_ua END
+}
+
+get_ua_psh() {
+#   C:\WINDOWS\system32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -NoExit 
+#	C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -NoExit 
+#		==> then run ISE
+#		==> run Get-ExecutionPolicy to check the "Bypass" is enabled
+#
+#       $REG_PATH="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist"
+#       Get-ChildItem -Path "$REG_PATH" | ForEach-Object { $_.Name } | ForEach-Object { Add-Content -Path 'userassist.txt' -Value $_ }
+
+    log get_ua_psh START
+
+    # REG_PATH="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist"
+    REG_PATH="Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist"
+    powershell.exe -Command "Get-ChildItem -Path '$REG_PATH' | ForEach-Object { \$_.Name } | ForEach-Object { Add-Content -Path 'userassist.txt' -Value \$_ }"
+
+    # Vérification si le fichier a été créé
+    if [ -f "userassist.txt" ]; then
+        log "Fichier créé avec succès!"
+    else
+        log "Échec de la création du fichier."
+    fi
+
+    log get_ua_psh END
+}
+
+
 #########################################################################
 
-echo "Have you read carefully the README file ?[Y/N]: "
+echo "Have you read carefully the README file ?[Yes/No]: "
 read READ_CHECK
 echo ""
 
@@ -183,6 +222,8 @@ if [ "${READ_CHECK}" = 'y' ] || [ "${READ_CHECK}" = 'Yes' ]; then
     #help
 	main "$1" "$2" "$3"
 	
+    get_ua_psh
+
 	log TP02 END
 	
 else
