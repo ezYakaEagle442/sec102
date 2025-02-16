@@ -105,17 +105,11 @@ encode() {
     # nopqrstuvwxyz abcdefghijklm
     # donc a ==> n et n==> a
     rot13_alphabet=( {n..z} {a..m} )
-    
+
     # Recherche de l'index de la lettre entrée
     for i in "${!alphabet[@]}"; do
         if [[ "${alphabet[i]}" == "$input_letter" ]]; then
-            local encoded_letter
-            # Vérification si on est au 'm'
-            if [[ $i -eq 12 ]]; then
-                encoded_letter="${alphabet[0]}"  # Boucle vers 'a' si l'entrée est 'm'
-            else
-                encoded_letter="${alphabet[i+13]}"
-            fi
+            local encoded_letter="${rot13_alphabet[i]}"
             #log encode END
             echo "$encoded_letter"
             return 0
