@@ -249,3 +249,22 @@ Mot chiffré: nopq
 Feb 16 08:28:05 S01[3111]: main END
 Feb 16 08:28:05 S01[3111]: TP02 END
 ```
+
+```bash
+bash ./rot13.sh decode --message uryyb
+```
+```console
+Have you read carefully the README file ?[Y/N]: 
+y
+
+Feb 16 08:55:29 S01[4296]: TP02 START
+Feb 16 08:55:29 S01[4296]: main START
+Lettre décodée: h
+Lettre décodée: e
+Lettre décodée: l
+Lettre décodée: l
+Lettre décodée: o
+Mot déchiffré: hello
+Feb 16 08:55:29 S01[4296]: main END
+Feb 16 08:55:29 S01[4296]: TP02 END
+```

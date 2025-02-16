@@ -85,12 +85,29 @@ main() {
 
         echo "Mot chiffré: $encoded_word"
 
-    else echo "TODO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    else
+        if [[ "$ACTION" == "decode" ]]; then
+            local decoded_word=""
+            for (( i=0; i<${#MESSAGE}; i++ )); do
+                letter="${MESSAGE:i:1}"
+                # log "Lettre $((i+1)) : $letter"
+                result=$(decode "$letter")  # Stocker la valeur retournée
+                echo "Lettre décodée: $result"
+
+                if [[ -z "$result" ]]; then
+                    echo "Erreur de décodage pour la lettre '$letter'"
+                    exit 1
+                fi
+
+                decoded_word+="$result"
+            done
+
+            echo "Mot déchiffré: $decoded_word"
+        fi
     fi
 
     log main END
 }
-
 
 encode() {
     #log encode START
@@ -122,6 +139,35 @@ encode() {
 	exit 1
 }
 
+decode() {
+    #log decode START
+
+    local input_letter=$1
+    #log paramètres en entrée: "$input_letter"
+
+    # Déclaration du tableau contenant les 26 lettres de l'alphabet
+    alphabet=( {a..z} )
+
+    # nopqrstuvwxyz abcdefghijklm
+    # abcdefghijklm nopqrstuvwxyz
+    # donc n ==> a et a==> n
+    rot13_alphabet=( {n..z} {a..m} )
+
+    # Recherche de l'index de la lettre entrée
+    for i in "${!rot13_alphabet[@]}"; do
+        if [[ "${rot13_alphabet[i]}" == "$input_letter" ]]; then
+            local decoded_letter="${alphabet[i]}"
+            #log decode END
+            echo "$decoded_letter"
+            return 0
+        fi
+    done
+
+    # Si la lettre n'est pas trouvée, afficher un message d'erreur
+    echo "Erreur : Veuillez entrer une lettre minuscule de a à z."
+    log decode END
+	exit 1
+}
 
 #########################################################################
 
