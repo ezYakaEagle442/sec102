@@ -73,17 +73,15 @@ Get-NetAdapter -Name * -Physical
 New-VMSwitch -name DockerExternalSwitch -NetAdapterName Wi-Fi -AllowManagementOS $true
 ```
 
-
 ## 4.Install VS Code 
+
+Go to [https://code.visualstudio.com/download](https://code.visualstudio.com/download)
 
 ## 5.Install WSL2
 
 Read [https://aka.ms/wslinstall](https://aka.ms/wslinstall)
 
 Run Terminal :
-
-
-wsl date
 
 ```bash
 wsl -l -v
@@ -190,17 +188,51 @@ git version
 git config --list --global
 # ssh -T $git_url -i /c/Users/bob.jojo/.ssh/githubkey
 
+```
+
+## 8.Change mount folder owner
+
+Read :
+- [https://askubuntu.com/questions/911804/ubuntu-for-windows-10-all-files-are-own-by-root-and-i-cannot-change-it](https://askubuntu.com/questions/911804/ubuntu-for-windows-10-all-files-are-own-by-root-and-i-cannot-change-it)
+- [https://github.com/microsoft/WSL/issues/7798](https://github.com/microsoft/WSL/issues/7798)
+  
+```bash
+cat /etc/group | grep $USER
+# get the group of your user, ex: 1000
+
+# Check WSL conf:
+cat /etc/wsl.conf
+
+mount | grep -i C:
+# uid=0;gid=0 means it is owned by root
+
+ls -al /etc/wsl.conf
+# sudo chmod g+w /etc/wsl.conf
+
+# Add this section in /etc/wsl.conf
+[automount]
+enabled = true
+options = "metadata"
+mountFsTab = false
+
+cat /etc/wsl.conf 
+
+# remount to fix the issue
+sudo umount /mnt/c; sudo mount -t drvfs C: /mnt/c -o metadata,uid=1000,gid=1000
+```
+
+## 9.Clone the repository
+
+```bash
 cd $HOME
 git clone $git_url
 cd $appName
 ```
 
-## 8.x
+# Run the script
 
 ```bash
-x
-
-
+bash ./rot13.sh
 ```
 
 ```console
@@ -208,7 +240,3 @@ x
 
 
 ```
-
-## 9.
-
-## x
