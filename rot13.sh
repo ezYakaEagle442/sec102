@@ -23,24 +23,24 @@ help() {
   echo ""  
   echo "    bash ./rot13.sh encode --message abcd to encrypt the message with Rot13"
   echo "    bash ./rot13.sh decode --message nopq to decrypt the message with Rot13"
-
-  #exit 0
+  echo "    bash ./rot13.shu get-hive to get the UserAssist registry Keys decrypted with ROT13"
+  
+  exit 0
 }
 
 # Fonction de parsing des arguments
 main() {
     log main START
 
-    local POSITIONAL_ARGS=()
+    # local POSITIONAL_ARGS=()
 
     while [[ $# -gt 0 ]]; do
+        
+        [[ -z "$1" ]] && break  # ⬅️ Évite d'entrer dans la boucle avec un argument vide pour le cas de get-hive
+
         case "$1" in
             -h|--help)
                 help
-                ;;
-            -m|--message)
-                MESSAGE="$2"
-                shift 2
                 ;;
             -v|--verbose)
                 VERBOSE=true
@@ -50,6 +50,19 @@ main() {
                 ACTION="$1"
                 shift
                 ;;
+            get-hive)
+                ACTION="get-hive"
+                shift
+                ;;
+            -m|--message)
+                if [[ -n "$2" ]]; then
+                    MESSAGE="$2"
+                    shift 2
+                else
+                    echo "Erreur: L'option --message nécessite un argument."
+                    exit 1
+                fi
+                ;;                
             *)
                 echo "Erreur: Option inconnue '$1'"
                 help
@@ -58,42 +71,48 @@ main() {
         esac
     done
 
+    if [[ "$ACTION" == "get-hive" ]]; then
+        get_ua_psh
     # Vérification des arguments obligatoires
-    if [[ -z "$ACTION" || -z "$MESSAGE" ]]; then
-        echo "Erreur: Action (encode/decode) et message sont obligatoires."
-        help
-        exit 1
-    fi
+    elif  [[ -n "$ACTION" && -n "$MESSAGE" ]]; then
 
-    if [[ "$ACTION" == "encode" ]]; then
+        if [[ "$ACTION" == "encode" ]]; then
 
-        local encoded_word=""
-        encoded_word=$(encode "$MESSAGE")  # Stocker la valeur retournée
-        echo "Mot chiffré: $encoded_word"
-        echo ""
-
-        if [[ -z "$encoded_word" ]]; then
-            echo "Erreur d'encodage pour le mot '$MESSAGE'"
-            exit 1
-        fi
-
-    else
-        if [[ "$ACTION" == "decode" ]]; then
-            local decoded_word=""
-            decoded_word=$(decode "$MESSAGE")  # Stocker la valeur retournée
-            echo "Mot déchiffré: $decoded_word"
+            local encoded_word=""
+            encoded_word=$(encode "$MESSAGE")  # Stocker la valeur retournée
+            echo "Mot chiffré: $encoded_word"
             echo ""
 
-            if [[ -z "$decoded_word" ]]; then
-                echo "Erreur de décodage pour le mot '$MESSAGE'"
+            if [[ -z "$encoded_word" ]]; then
+                echo "Erreur d'encodage pour le mot '$MESSAGE'"
                 exit 1
             fi
+
+        else
+            if [[ "$ACTION" == "decode" ]]; then
+                local decoded_word=""
+                decoded_word=$(decode "$MESSAGE")  # Stocker la valeur retournée
+                echo "Mot déchiffré: $decoded_word"
+                echo ""
+
+                if [[ -z "$decoded_word" ]]; then
+                    echo "Erreur de décodage pour le mot '$MESSAGE'"
+                    exit 1
+                fi
+            fi
         fi
+    else 
+        echo "Erreur: Veuillez fournir une action valide encode|decode avec les arguments requis. ou bien l'action get-hive"
+        help
+        exit 1    
     fi
 
     log main END
 }
 
+#########################################################################
+# Fonction d'encodage d'un mot avec ROT13
+#########################################################################
 encode() {
     # log encode START
     local input_word=$1
@@ -145,6 +164,9 @@ encode() {
     echo $encoded_word
 }
 
+#########################################################################
+# Fonction de décodage d'un mot chiffré avec ROT13
+#########################################################################
 decode() {
     # log decode START
 
@@ -201,6 +223,9 @@ decode() {
 
 }
 
+#########################################################################
+# Call CMD to get the UserAssist registry keys
+#########################################################################
 get_ua_cmd() {
 
     log get_ua START
@@ -214,6 +239,9 @@ get_ua_cmd() {
     log get_ua END
 }
 
+#########################################################################
+# Call PowerShell to get the UserAssist registry keys
+#########################################################################
 get_ua_psh() {
 #   C:\WINDOWS\system32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -NoExit 
 #	C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -NoExit 
@@ -241,6 +269,9 @@ get_ua_psh() {
     log get_ua_psh END
 }
 
+#########################################################################
+# Decode the UserAssist registry keys
+#########################################################################
 decode_ua_file() {
 
     log decode_ua_file START
@@ -258,6 +289,8 @@ decode_ua_file() {
 
 
 #########################################################################
+# Main
+#########################################################################
 
 echo "Have you read carefully the README file ?[Yes/No]: "
 read READ_CHECK
@@ -268,13 +301,14 @@ echo ""
 if [ "${READ_CHECK}" = 'y' ] || [ "${READ_CHECK}" = 'Yes' ]; then
 
 	log TP02 START
+
     #help
 	
     # TP2
-    #main "$1" "$2" "$3"
+    main "$1" "$2" "$3"
     
     # TP3
-    get_ua_psh
+    # get_ua_psh
 	
     log TP02 END
 	

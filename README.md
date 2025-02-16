@@ -157,6 +157,7 @@ echo "
 	editor = nano
 	#sshCommand = ssh -i /c/Users/bob.jojo/.ssh/id_rsa
 	sshCommand = ssh -i /c/Users/bob.jojo/.ssh/githubkey
+	autocrlf = false
 
 [alias]
 	hist = log --all --graph --decorate --oneline
@@ -260,4 +261,23 @@ Mot déchiffré: Hello WORLD 2025 !
 
 Feb 16 15:06:25 S01[14895]: main END
 Feb 16 15:06:25 S01[14895]: TP02 END
+```
+
+## TP3
+```bash
+bash ./rot13.shu get-hive
+```
+```console
+Have you read carefully the README file ?[Yes/No]: 
+y
+
+Feb 16 21:50:39 S01[1631]: TP02 START
+Feb 16 21:50:39 S01[1631]: main START
+Feb 16 21:50:39 S01[1631]: get_ua_psh START
+Feb 16 21:50:39 S01[1631]: Fichier créé avec succès!
+Feb 16 21:50:39 S01[1631]: decode_ua_file START
+Feb 16 21:50:39 S01[1631]: decode_ua_file END
+Feb 16 21:50:39 S01[1631]: get_ua_psh END
+Feb 16 21:50:39 S01[1631]: main END
+Feb 16 21:50:39 S01[1631]: TP02 END
 ```
