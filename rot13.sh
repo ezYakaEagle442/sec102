@@ -27,7 +27,6 @@ help() {
   #exit 0
 }
 
-
 # Fonction de parsing des arguments
 main() {
     log main START
@@ -69,40 +68,26 @@ main() {
     if [[ "$ACTION" == "encode" ]]; then
 
         local encoded_word=""
-        for (( i=0; i<${#MESSAGE}; i++ )); do
-            letter="${MESSAGE:i:1}"
-            # log "Lettre $((i+1)) : $letter"
-            result=$(encode "$letter")  # Stocker la valeur retournée
-            echo "Lettre encodée: $result"
-
-            if [[ -z "$result" ]]; then
-                echo "Erreur d'encodage pour la lettre '$letter'"
-                exit 1
-            fi
-
-            encoded_word+="$result"
-        done
-
+        encoded_word=$(encode "$MESSAGE")  # Stocker la valeur retournée
         echo "Mot chiffré: $encoded_word"
+        echo ""
+
+        if [[ -z "$encoded_word" ]]; then
+            echo "Erreur d'encodage pour le mot '$MESSAGE'"
+            exit 1
+        fi
 
     else
         if [[ "$ACTION" == "decode" ]]; then
             local decoded_word=""
-            for (( i=0; i<${#MESSAGE}; i++ )); do
-                letter="${MESSAGE:i:1}"
-                # log "Lettre $((i+1)) : $letter"
-                result=$(decode "$letter")  # Stocker la valeur retournée
-                echo "Lettre décodée: $result"
-
-                if [[ -z "$result" ]]; then
-                    echo "Erreur de décodage pour la lettre '$letter'"
-                    exit 1
-                fi
-
-                decoded_word+="$result"
-            done
-
+            decoded_word=$(decode "$MESSAGE")  # Stocker la valeur retournée
             echo "Mot déchiffré: $decoded_word"
+            echo ""
+
+            if [[ -z "$decoded_word" ]]; then
+                echo "Erreur de décodage pour le mot '$MESSAGE'"
+                exit 1
+            fi
         fi
     fi
 
@@ -110,10 +95,8 @@ main() {
 }
 
 encode() {
-    #log encode START
-
-    local input_letter=$1
-    #log paramètres en entrée: "$input_letter"
+    # log encode START
+    local input_word=$1
 
     # Déclaration du tableau contenant les 26 lettres de l'alphabet
     alphabet=( {a..z} )
@@ -123,27 +106,50 @@ encode() {
     # donc a ==> n et n==> a
     rot13_alphabet=( {n..z} {a..m} )
 
-    # Recherche de l'index de la lettre entrée
-    for i in "${!alphabet[@]}"; do
-        if [[ "${alphabet[i]}" == "$input_letter" ]]; then
-            local encoded_letter="${rot13_alphabet[i]}"
-            #log encode END
-            echo "$encoded_letter"
-            return 0
+    # Parcours de chaque lettre du mot en entrée
+    for (( i=0; i<${#input_word}; i++ )); do
+        letter="${input_word:i:1}"  # Extraire une lettre du mot
+
+        # Si le caractère est un espace, on le conserve
+        if [[ "$letter" == " " ]]; then
+            encoded_word+=" "  # Ajouter un espace à la phrase encodée
+            continue
+        fi
+
+        # Sauvegarder la casse d'origine de la lettre
+        is_uppercase=false
+        if [[ "$letter" =~ [A-Z] ]]; then
+            letter="${letter,,}"  # Convertir en minuscule
+            is_uppercase=true
+        fi
+
+        # Si la lettre est dans l'alphabet
+        if [[ "$letter" =~ [a-z] ]]; then
+            # Recherche de l'index de la lettre dans l'alphabet
+            for j in "${!alphabet[@]}"; do
+                if [[ "${alphabet[j]}" == "$letter" ]]; then
+                    local encoded_letter="${rot13_alphabet[j]}"
+                    # Restaurer la casse majuscule si nécessaire
+                    if $is_uppercase; then
+                        encoded_letter="${encoded_letter^^}"
+                    fi
+                    encoded_word+="$encoded_letter"
+                    break  # Sortir de la boucle dès que la lettre est trouvée
+                fi
+            done
+        else
+            encoded_word+="$letter"
         fi
     done
-
-    # Si la lettre n'est pas trouvée, afficher un message d'erreur
-    echo "Erreur : Veuillez entrer une lettre minuscule de a à z."
-    log encode END
-	exit 1
+    # log encode END
+    echo $encoded_word
 }
 
 decode() {
-    #log decode START
+    # log decode START
 
-    local input_letter=$1
-    #log paramètres en entrée: "$input_letter"
+    local input_word=$1
+    # log paramètres en entrée: "$input_word"
 
     # Déclaration du tableau contenant les 26 lettres de l'alphabet
     alphabet=( {a..z} )
@@ -153,20 +159,46 @@ decode() {
     # donc n ==> a et a==> n
     rot13_alphabet=( {n..z} {a..m} )
 
-    # Recherche de l'index de la lettre entrée
-    for i in "${!rot13_alphabet[@]}"; do
-        if [[ "${rot13_alphabet[i]}" == "$input_letter" ]]; then
-            local decoded_letter="${alphabet[i]}"
-            #log decode END
-            echo "$decoded_letter"
-            return 0
+    # Initialisation de la variable pour stocker le mot déchiffré
+    local decoded_word=""
+
+    # Parcourir chaque lettre du mot en entrée
+    for (( i=0; i<${#input_word}; i++ )); do
+        local letter="${input_word:$i:1}"
+
+        # Si le caractère est un espace ou un symbole, on le conserve tel quel dans la phrase déchiffrée
+        if [[ "$letter" == " " || "$letter" =~ [^a-zA-Z] ]]; then
+            decoded_word+="$letter"
+            continue
         fi
+
+        # Sauvegarder la casse d'origine de la lettre
+        local is_uppercase=false
+        if [[ "$letter" =~ [A-Z] ]]; then
+            letter="${letter,,}"  # Convertir en minuscule pour le traitement
+            is_uppercase=true
+        fi
+
+        # Recherche de l'index de la lettre dans l'alphabet
+        for j in "${!rot13_alphabet[@]}"; do
+            if [[ "${rot13_alphabet[j]}" == "$letter" ]]; then
+                local decoded_letter="${alphabet[j]}"
+                
+                # Restaurer la casse majuscule si nécessaire
+                if $is_uppercase; then
+                    decoded_letter="${decoded_letter^^}"
+                fi
+                
+                decoded_word+="$decoded_letter"
+                break
+            fi
+        done
     done
 
-    # Si la lettre n'est pas trouvée, afficher un message d'erreur
-    echo "Erreur : Veuillez entrer une lettre minuscule de a à z."
-    log decode END
-	exit 1
+    # Afficher le mot déchiffré
+    # log decode END
+    echo "$decoded_word"
+
 }
 
 get_ua_cmd() {
@@ -195,7 +227,7 @@ get_ua_psh() {
 
     # REG_PATH="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist"
     REG_PATH="Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist"
-    powershell.exe -Command "Get-ChildItem -Path '$REG_PATH' | ForEach-Object { \$_.Name } | ForEach-Object { Add-Content -Path 'userassist.txt' -Value \$_ }"
+    powershell.exe -Command "Get-ChildItem -Path '$REG_PATH' -Recurse | ForEach-Object { \$_.Name } | ForEach-Object { Add-Content -Path 'userassist.txt' -Value \$_ }"
 
     # Vérification si le fichier a été créé
     if [ -f "userassist.txt" ]; then
@@ -204,7 +236,24 @@ get_ua_psh() {
         log "Échec de la création du fichier."
     fi
 
+    decode_ua_file userassist.txt
+
     log get_ua_psh END
+}
+
+decode_ua_file() {
+
+    log decode_ua_file START
+    # REG_PATH="Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist"
+
+    while IFS= read -r line; do
+        #echo "Ligne lue : $line"
+        decoded_key_val=$(decode "$line")
+        #echo "key $decoded_key_val"
+        echo $decoded_key_val >> decode_userassist.txt
+    done < "$1"
+
+    log decode_ua_file END
 }
 
 
@@ -220,15 +269,17 @@ if [ "${READ_CHECK}" = 'y' ] || [ "${READ_CHECK}" = 'Yes' ]; then
 
 	log TP02 START
     #help
-	main "$1" "$2" "$3"
 	
+    # TP2
+    #main "$1" "$2" "$3"
+    
+    # TP3
     get_ua_psh
-
-	log TP02 END
+	
+    log TP02 END
 	
 else
 	echo "You should read carefully the README file ... "
 fi
-
 
 exit $?
