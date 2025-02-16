@@ -232,39 +232,32 @@ cd $appName
 # Run the script
 
 ```bash
-bash ./rot13.sh encode --message abcd
+bash ./rot13.sh encode --message "Hello WORLD 2025 !"
 ```
 
 ```console
-Have you read carefully the README file ?[Y/N]: 
+Have you read carefully the README file ?[Yes/No]: 
 y
 
-Feb 16 08:28:05 S01[3111]: TP02 START
-Feb 16 08:28:05 S01[3111]: main START
-Lettre encodée: n
-Lettre encodée: o
-Lettre encodée: p
-Lettre encodée: q
-Mot chiffré: nopq
-Feb 16 08:28:05 S01[3111]: main END
-Feb 16 08:28:05 S01[3111]: TP02 END
+Feb 16 14:54:10 S01[14451]: TP02 START
+Feb 16 14:54:10 S01[14451]: main START
+Mot chiffré: Uryyb JBEYQ 2025 !
+
+Feb 16 14:54:10 S01[14451]: main END
+Feb 16 14:54:10 S01[14451]: TP02 END
 ```
 
 ```bash
-bash ./rot13.sh decode --message uryyb
+bash ./rot13.sh decode --message "Uryyb JBEYQ 2025 !"
 ```
 ```console
-Have you read carefully the README file ?[Y/N]: 
+Have you read carefully the README file ?[Yes/No]: 
 y
 
-Feb 16 08:55:29 S01[4296]: TP02 START
-Feb 16 08:55:29 S01[4296]: main START
-Lettre décodée: h
-Lettre décodée: e
-Lettre décodée: l
-Lettre décodée: l
-Lettre décodée: o
-Mot déchiffré: hello
-Feb 16 08:55:29 S01[4296]: main END
-Feb 16 08:55:29 S01[4296]: TP02 END
+Feb 16 15:06:25 S01[14895]: TP02 START
+Feb 16 15:06:25 S01[14895]: main START
+Mot déchiffré: Hello WORLD 2025 !
+
+Feb 16 15:06:25 S01[14895]: main END
+Feb 16 15:06:25 S01[14895]: TP02 END
 ```
