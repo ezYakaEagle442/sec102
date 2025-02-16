@@ -232,11 +232,20 @@ cd $appName
 # Run the script
 
 ```bash
-bash ./rot13.sh
+bash ./rot13.sh encode --message abcd
 ```
 
 ```console
-x
+Have you read carefully the README file ?[Y/N]: 
+y
 
-
+Feb 16 08:28:05 S01[3111]: TP02 START
+Feb 16 08:28:05 S01[3111]: main START
+Lettre encodée: n
+Lettre encodée: o
+Lettre encodée: p
+Lettre encodée: q
+Mot chiffré: nopq
+Feb 16 08:28:05 S01[3111]: main END
+Feb 16 08:28:05 S01[3111]: TP02 END
 ```

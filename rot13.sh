@@ -1,35 +1,37 @@
 #!/bin/bash
 
-
 #########################################################################
 
-### Log Function ###
-#
+### Functions ###
+
 log() {
     echo "`date +"%b %e %H:%M:%S"` S01[$$]:" $* | tee -a $LOG_FILE
 }
 
-
-help(){
-  echo "Help usage: rot13.sh encode options"
+help() {
+  echo "Help usage: bash ./rot13.sh encode options"
   echo ""
   echo "OPTIONS: "
   echo "    -h --help to displays HELP usage"
   echo "    -m --message the message to encode or to decode"
   echo "    -v --verbose to debug logs"
 
+  echo ""  
   echo "Examples "
+  echo ""  
   echo "Run:"
+  echo ""  
   echo "    bash ./rot13.sh encode --message abcd to encrypt the message with Rot13"
   echo "    bash ./rot13.sh decode --message nopq to decrypt the message with Rot13"
 
-  #exit()
+  #exit 0
 }
 
 
-
 # Fonction de parsing des arguments
-parse_args() {
+main() {
+    log main START
+
     local POSITIONAL_ARGS=()
 
     while [[ $# -gt 0 ]]; do
@@ -52,6 +54,7 @@ parse_args() {
             *)
                 echo "Erreur: Option inconnue '$1'"
                 help
+                exit 1
                 ;;
         esac
     done
@@ -60,33 +63,71 @@ parse_args() {
     if [[ -z "$ACTION" || -z "$MESSAGE" ]]; then
         echo "Erreur: Action (encode/decode) et message sont obligatoires."
         help
+        exit 1
     fi
+
+    if [[ "$ACTION" == "encode" ]]; then
+
+        local encoded_word=""
+        for (( i=0; i<${#MESSAGE}; i++ )); do
+            letter="${MESSAGE:i:1}"
+            # log "Lettre $((i+1)) : $letter"
+            result=$(encode "$letter")  # Stocker la valeur retournée
+            echo "Lettre encodée: $result"
+
+            if [[ -z "$result" ]]; then
+                echo "Erreur d'encodage pour la lettre '$letter'"
+                exit 1
+            fi
+
+            encoded_word+="$result"
+        done
+
+        echo "Mot chiffré: $encoded_word"
+
+    else echo "TODO XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    fi
+
+    log main END
 }
 
 
 encode() {
+    #log encode START
+
     local input_letter=$1
+    #log paramètres en entrée: "$input_letter"
 
     # Déclaration du tableau contenant les 26 lettres de l'alphabet
     alphabet=( {a..z} )
 
+    # abcdefghijklm nopqrstuvwxyz
+    # nopqrstuvwxyz abcdefghijklm
+    # donc a ==> n et n==> a
+    rot13_alphabet=( {n..z} {a..m} )
+    
     # Recherche de l'index de la lettre entrée
     for i in "${!alphabet[@]}"; do
         if [[ "${alphabet[i]}" == "$input_letter" ]]; then
-            # Vérification si on est à la dernière lettre
-            if [[ $i -eq 25 ]]; then
-                echo "${alphabet[0]}"  # Boucle vers 'a' si l'entrée est 'z'
+            local encoded_letter
+            # Vérification si on est au 'm'
+            if [[ $i -eq 12 ]]; then
+                encoded_letter="${alphabet[0]}"  # Boucle vers 'a' si l'entrée est 'm'
             else
-                echo "${alphabet[i+1]}"
+                encoded_letter="${alphabet[i+13]}"
             fi
-            return
+            #log encode END
+            echo "$encoded_letter"
+            return 0
         fi
     done
 
     # Si la lettre n'est pas trouvée, afficher un message d'erreur
     echo "Erreur : Veuillez entrer une lettre minuscule de a à z."
-	exit(1)
+    log encode END
+	exit 1
 }
+
 
 #########################################################################
 
@@ -99,9 +140,8 @@ echo ""
 if [ "${READ_CHECK}" = 'y' ] || [ "${READ_CHECK}" = 'Yes' ]; then
 
 	log TP02 START
-
-	read args
-	main(args)
+    #help
+	main "$1" "$2" "$3"
 	
 	log TP02 END
 	
@@ -110,4 +150,4 @@ else
 fi
 
 
-# exit $?
+exit $?
