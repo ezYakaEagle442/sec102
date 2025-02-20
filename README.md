@@ -261,6 +261,8 @@ Test a git clone and a git push to verify your SSH Keys
 cd $HOME
 git clone $git_url
 cd $appName
+
+. setEnv.sh
 ```
 
 # Run the script
@@ -298,6 +300,10 @@ Feb 16 15:06:25 S01[14895]: TP02 END
 
 ## TP3
 ```bash
+# /!\ Windows Telemetry should be enabled ...
+# HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Start_TrackProgs=1
+# HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Start_TrackEnabled=1
+
 bash ./rot13.shu get-hive
 ```
 ```console
