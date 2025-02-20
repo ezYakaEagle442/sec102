@@ -59,8 +59,6 @@ Once you have confirmed that your system is compatible, you can proceed to enabl
      
 Further resources surrounding the enablement of these resources can be found here: [https://learn.microsoft.com/training/modules/configure-manage-hyper-v/?WT.mc_id=academic-89565-abartolo](https://learn.microsoft.com/training/modules/configure-manage-hyper-v/?WT.mc_id=academic-89565-abartolo)
 
-Further resources surrounding the enablement of these resources can be found here: https://learn.microsoft.com/training/modules/configure-manage-hyper-v/?WT.mc_id=academic-89565-abartolo
-
 With automation:
 
 ```bash
@@ -125,7 +123,7 @@ When MFA is enabled on GitHub and that you plan to use SSH Keys, you have to use
 appName="sec102" 
 echo "appName is : " $appName
 
-/!\ IMPORTANT : check & save your ssh_passphrase !!!
+# /!\ IMPORTANT : check & save your ssh_passphrase !!!
 ssh_passphrase="<your secret>"
 ssh_key="${appName}-key" # id_rsa
 
@@ -224,6 +222,41 @@ sudo umount /mnt/c; sudo mount -t drvfs C: /mnt/c -o metadata,uid=1000,gid=1000
 
 ## 9.Clone the repository
 
+```bash
+cd $HOME
+git clone $git_url
+cd $appName
+```
+
+At this step, you will be able to use git in WSL, but NOT from windows, if you want to leverage VSCode/Source Control view to push your code to GitHub, then you have to complete step 10 below.
+
+## 10.Install Gitbash for Windows
+
+Follow this [instruction]((https://github.com/ezYakaEagle442/chocolatey/?tab=readme-ov-file#chocolatey-install)) to install [Choloatey](https://chocolatey.org/install) (package manager for Windows)
+
+```bash
+@"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
+
+choco upgrade chocolatey
+choco –version
+choco --help
+```
+
+Install Git bash CLI with Chocolatey
+```bash
+choco install git.install --Yes --confirm --accept-license
+```
+
+Open Git Bash Windows Application, create SSH Keys in Git Bash like at step 7, also configure your .gitconfig like at step 7.
+```bash
+hostname
+whoami
+date
+git version
+git --help
+```
+
+Test a git clone and a git push to verify your SSH Keys
 ```bash
 cd $HOME
 git clone $git_url
