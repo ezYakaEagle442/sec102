@@ -265,26 +265,40 @@ get_ua_psh() {
     fi
 
     REG_PATH="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist"
-    # Utilisation de PowerShell pour récupérer les valeurs 'Count' des sous-clés
-    powershell.exe -Command "
+        # Utilisation de PowerShell pour récupérer les valeurs 'Count' des sous-clés
+
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& {
+        \$OUTPUT_FILE = '$OUTPUT_FILE'
+        \$REG_PATH = '$REG_PATH'
+
         try {
-            # Parcourir toutes les clés 'UserAssist' et récupérer les sous-clés contenant 'Count'
-            Get-ChildItem -Path '$REG_PATH' -Recurse | 
-            Where-Object { \$_.PSPath -match 'Count' } | 
-            ForEach-Object { 
-                \$key = \$_.PSPath
-                # Récupérer la valeur encodée en Rot13 contenue dans la clé 'Count'
-                \$encodedPath = (Get-ItemProperty -Path \$key).Count
-                # Vérifier si la valeur de Count est non vide
-                if (\$encodedPath) {
-                    # Ajouter uniquement la valeur encodée en Rot13 dans le fichier de sortie
-                    Add-Content -Path '$OUTPUT_FILE' -Value \$encodedPath
+            Get-ChildItem -Path \$REG_PATH | ForEach-Object {
+                \$guidKey = \$_.PSChildName
+                \$countPath = \"\$REG_PATH\\\$guidKey\\Count\"
+
+                if (Test-Path \$countPath) {
+                    \$countValues = Get-ItemProperty -Path \$countPath -ErrorAction SilentlyContinue
+                    if (\$countValues -ne \$null) {
+                        foreach (\$property in \$countValues.PSObject.Properties) {
+                            if (\$property.Name -ne 'PSPath' -and \$property.Name -ne 'PSParentPath' -and
+                                \$property.Name -ne 'PSChildName' -and \$property.Name -ne 'PSDrive' -and
+                                \$property.Name -ne 'PSProvider') {
+
+                                \$value = \$property.Value
+                                if (\$value -is [string] -and \$value -ne "") {
+                                    Add-Content -Path \$OUTPUT_FILE -Value \$value
+                                }
+                            }
+                        }
+                    }
                 }
             }
         } catch {
-            Write-Host 'Erreur dans l\'exécution PowerShell: '' \$_.Exception.Message
+            Write-Host 'Erreur lors de la récupération des données : \$\_'
+            exit 1
         }
-    "
+    }"    
+
     # Vérification si le fichier a été créé
     if [ -s "$OUTPUT_FILE" ]; then
         log "Fichier créé/ajouté avec succès!"
