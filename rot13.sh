@@ -5,7 +5,10 @@
 ### Functions ###
 
 log() {
-    echo "`date +"%b %e %H:%M:%S"` S01[$$]:" $* | tee -a $LOG_FILE
+    # echo "`date +"%b %e %H:%M:%S"` S01[$$]:" $* | tee -a $LOG_FILE
+    #echo "$(date +"%Y-%m-%dT%H:%M:%S.%N%:z") S01[$$]:" $* | tee -a "$LOG_FILE"
+    # RSX112 S03: utiliser de préférence la RFC 3339
+    echo "$(date --rfc-3339=ns) S01[$$]:" "$*" | tee -a "$LOG_FILE"
 }
 
 help() {
@@ -23,7 +26,7 @@ help() {
   echo ""  
   echo "    bash ./rot13.sh encode --message abcd to encrypt the message with Rot13"
   echo "    bash ./rot13.sh decode --message nopq to decrypt the message with Rot13"
-  echo "    bash ./rot13.shu get-hive to get the UserAssist registry Keys decrypted with ROT13"
+  echo "    bash ./rot13.sh get-hive to get the UserAssist registry Keys decrypted with ROT13"
   
   exit 0
 }
@@ -253,18 +256,43 @@ get_ua_psh() {
 
     log get_ua_psh START
 
-    # REG_PATH="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist"
-    REG_PATH="Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist"
-    powershell.exe -Command "Get-ChildItem -Path '$REG_PATH' -Recurse | ForEach-Object { \$_.Name } | ForEach-Object { Add-Content -Path 'userassist.txt' -Value \$_ }"
+    OUTPUT_FILE="userassist.txt"
 
-    # Vérification si le fichier a été créé
-    if [ -f "userassist.txt" ]; then
-        log "Fichier créé avec succès!"
-    else
-        log "Échec de la création du fichier."
+    # Si le fichier n'existe pas, il faut le créer pour éviter toute erreur
+    if [ ! -f "$OUTPUT_FILE" ]; then
+        touch "$OUTPUT_FILE"
+        log "Fichier '$OUTPUT_FILE' créé."
     fi
 
-    decode_ua_file userassist.txt
+    REG_PATH="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist"
+    # Utilisation de PowerShell pour récupérer les valeurs 'Count' des sous-clés
+    powershell.exe -Command "
+        try {
+            # Parcourir toutes les clés 'UserAssist' et récupérer les sous-clés contenant 'Count'
+            Get-ChildItem -Path '$REG_PATH' -Recurse | 
+            Where-Object { \$_.PSPath -match 'Count' } | 
+            ForEach-Object { 
+                \$key = \$_.PSPath
+                # Récupérer la valeur encodée en Rot13 contenue dans la clé 'Count'
+                \$encodedPath = (Get-ItemProperty -Path \$key).Count
+                # Vérifier si la valeur de Count est non vide
+                if (\$encodedPath) {
+                    # Ajouter uniquement la valeur encodée en Rot13 dans le fichier de sortie
+                    Add-Content -Path '$OUTPUT_FILE' -Value \$encodedPath
+                }
+            }
+        } catch {
+            Write-Host 'Erreur dans l\'exécution PowerShell: '' \$_.Exception.Message
+        }
+    "
+    # Vérification si le fichier a été créé
+    if [ -s "$OUTPUT_FILE" ]; then
+        log "Fichier créé/ajouté avec succès!"
+        decode_ua_file "$OUTPUT_FILE"
+    else
+        log "Échec de la création/écriture du fichier ou le fichier est vide."
+        exit 1
+    fi
 
     log get_ua_psh END
 }
@@ -278,9 +306,9 @@ decode_ua_file() {
     # REG_PATH="Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist"
 
     while IFS= read -r line; do
-        #echo "Ligne lue : $line"
+        echo "Ligne lue : $line"
         decoded_key_val=$(decode "$line")
-        #echo "key $decoded_key_val"
+        echo "key $decoded_key_val"
         echo $decoded_key_val >> decode_userassist.txt
     done < "$1"
 
@@ -305,8 +333,10 @@ if [ "${READ_CHECK}" = 'y' ] || [ "${READ_CHECK}" = 'Yes' ]; then
     #help
 	
     # TP2
-    main "$1" "$2" "$3"
+    # decode "{6Q809377-6NS0-444O-8957-N3773S02200R}\Abgrcnq++\abgrcnq++.rkr"
     
+    main "$1" "$2" "$3"
+
     # TP3
     # get_ua_psh
 	
