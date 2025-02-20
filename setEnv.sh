@@ -1,4 +1,4 @@
-!/bin/bash
+# !/bin/bash
 
 set -x
 ### Declare variables ###
@@ -16,7 +16,8 @@ LOG_FILE="${WORK_DIR}/${0}.log"
 
 ### Log Function ###
 log() {
-    echo "`date +"%b %e %H:%M:%S"` TP02 [$$]:" $* | tee -a $LOG_FILE    
+    echo "$(date --rfc-3339=ns) [$$]:" "$*" | tee -a "$LOG_FILE"
+    # echo "`date +"%b %e %H:%M:%S"` TP02 [$$]:" $* | tee -a $LOG_FILE    
 }
 
 log " USERNAME = ${USERNAME} "
