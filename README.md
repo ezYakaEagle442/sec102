@@ -298,6 +298,30 @@ Feb 16 15:06:25 S01[14895]: main END
 Feb 16 15:06:25 S01[14895]: TP02 END
 ```
 
+
+## TP2
+```bash
+# /!\ Windows Telemetry should be enabled ...
+# HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Start_TrackProgs=1
+# HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Start_TrackEnabled=1
+
+bash ./rot13.sh decode --message "ZFRqtr"
+
+```
+bash ./rot13.sh decode --message "ZFRqtr"
+```console
+Have you read carefully the README file ?[Yes/No]: 
+y
+
+2025-02-21 14:28:12.256517290+01:00 S01[10068]: TP02 START
+2025-02-21 14:28:12.259568104+01:00 S01[10068]: main START
+
+Mot déchiffré: MSEdge
+
+2025-02-21 14:28:12.264530576+01:00 S01[10068]: main END
+2025-02-21 14:28:12.270434393+01:00 S01[10068]: TP02 END
+```
+
 ## TP3
 ```bash
 # /!\ Windows Telemetry should be enabled ...
