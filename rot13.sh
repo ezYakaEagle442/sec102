@@ -34,6 +34,7 @@ help() {
 # Fonction de parsing des arguments
 main() {
     log main START
+    echo ""
 
     # local POSITIONAL_ARGS=()
 
@@ -76,6 +77,7 @@ main() {
 
     if [[ "$ACTION" == "get-hive" ]]; then
         get_ua_psh
+        echo ""
     # Vérification des arguments obligatoires
     elif  [[ -n "$ACTION" && -n "$MESSAGE" ]]; then
 
@@ -117,6 +119,7 @@ main() {
 # Fonction d'encodage d'un mot avec ROT13
 #########################################################################
 encode() {
+    # in 1 line bash: % echo 'Hello WORLD 2025 !' | tr 'A-Za-z' 'N-ZA-Mn-za-m'
     # log encode START
     local input_word=$1
 
@@ -285,7 +288,7 @@ get_ua_psh() {
 # Decode the UserAssist registry keys
 #########################################################################
 decode_ua_file() {
-    
+
     log decode_ua_file START
     # REG_PATH="Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist"
 
@@ -315,15 +318,9 @@ if [ "${READ_CHECK}" = 'y' ] || [ "${READ_CHECK}" = 'Yes' ]; then
 	log TP02 START
 
     #help
-	
-    # TP2
-    # decode "{6Q809377-6NS0-444O-8957-N3773S02200R}\Abgrcnq++\abgrcnq++.rkr"
-    
+	    
     main "$1" "$2" "$3"
 
-    # TP3
-    # get_ua_psh
-	
     log TP02 END
 	
 else
