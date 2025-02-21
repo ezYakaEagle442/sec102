@@ -264,40 +264,10 @@ get_ua_psh() {
         log "Fichier '$OUTPUT_FILE' créé."
     fi
 
+    # in bash: REG_PATH="Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist"
     REG_PATH="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist"
-        # Utilisation de PowerShell pour récupérer les valeurs 'Count' des sous-clés
-
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "& {
-        \$OUTPUT_FILE = '$OUTPUT_FILE'
-        \$REG_PATH = '$REG_PATH'
-
-        try {
-            Get-ChildItem -Path \$REG_PATH | ForEach-Object {
-                \$guidKey = \$_.PSChildName
-                \$countPath = \"\$REG_PATH\\\$guidKey\\Count\"
-
-                if (Test-Path \$countPath) {
-                    \$countValues = Get-ItemProperty -Path \$countPath -ErrorAction SilentlyContinue
-                    if (\$countValues -ne \$null) {
-                        foreach (\$property in \$countValues.PSObject.Properties) {
-                            if (\$property.Name -ne 'PSPath' -and \$property.Name -ne 'PSParentPath' -and
-                                \$property.Name -ne 'PSChildName' -and \$property.Name -ne 'PSDrive' -and
-                                \$property.Name -ne 'PSProvider') {
-
-                                \$value = \$property.Value
-                                if (\$value -is [string] -and \$value -ne "") {
-                                    Add-Content -Path \$OUTPUT_FILE -Value \$value
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } catch {
-            Write-Host 'Erreur lors de la récupération des données : \$\_'
-            exit 1
-        }
-    }"    
+    # Utilisation de PowerShell pour récupérer les valeurs 'Count' des sous-clés
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File "get_user_assist.ps1" -OutputFile "$OUTPUT_FILE" -RegPath "$REG_PATH"
 
     # Vérification si le fichier a été créé
     if [ -s "$OUTPUT_FILE" ]; then
@@ -315,14 +285,14 @@ get_ua_psh() {
 # Decode the UserAssist registry keys
 #########################################################################
 decode_ua_file() {
-
+    
     log decode_ua_file START
     # REG_PATH="Registry::HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\UserAssist"
 
     while IFS= read -r line; do
-        echo "Ligne lue : $line"
+        #echo "Ligne lue : $line"
         decoded_key_val=$(decode "$line")
-        echo "key $decoded_key_val"
+        #echo "key $decoded_key_val"
         echo $decoded_key_val >> decode_userassist.txt
     done < "$1"
 
