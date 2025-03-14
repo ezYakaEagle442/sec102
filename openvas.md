@@ -155,6 +155,15 @@ gvm-cli --gmp-username admin socket --pretty --xml "<get_version/>"
 ```bash
 docker logs -f 615e424be483 | grep "No SCAP database found for migration"
 docker logs -f 615e424be483 | grep "No CERT database found for migration"
+docker logs -f 615e424be483 | grep "Port list All IANA assigned TCP"
+docker logs -f 615e424be483 | grep "Port list All TCP and Nmap top 100 UDP"
+docker logs -f 615e424be483 | grep "Report format XML"
+docker logs -f 615e424be483 | grep "update_scap: Updating data from feed"
+docker logs -f 615e424be483 | grep "sync_cert: Updating CERT info succeeded"
+docker logs -f 615e424be483 | grep "Scan config Full and fast"
+docker logs -f 615e424be483 | grep "docker logs -f 615e424be483 | grep update_scap"
+docker logs -f 615e424be483 | grep "sync_cert: Updating data from feed"
+docker logs -f 615e424be483 | grep "Updating VTs in database"
 ```
 
 ```console
