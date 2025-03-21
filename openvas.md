@@ -145,7 +145,10 @@ gvm-cli --gmp-username admin socket --pretty --xml "<get_version/>"
 ```
 
 ```bash
-
+# verify volumes
+curl -s https://greenbone.github.io/docs/latest/_static/docker-compose.yml | grep volumes -A 5
+sudo ls -al /var/lib/docker/volumes/
+docker volume inspect greenbone-community-edition_vt_data_vol
 ```
 
 ```console
@@ -179,6 +182,11 @@ docker logs -f 615e424be483 | grep "grep update_scap"
 docker logs -f 615e424be483 | grep ""
 ```
 
+
+
+```bash
+
+```
 ```console
 
 ```
