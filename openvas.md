@@ -18,6 +18,7 @@ Read :
 - [https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script](https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script) 
 
 ```bash
+sudo apt install bind9-dnsutils
 sudo apt  install jq
 
 curl -fsSL https://get.docker.com -o get-docker.sh
