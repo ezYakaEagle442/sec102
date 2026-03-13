@@ -1,0 +1,9 @@
+ls -al /etc/apt/sources.list.d/ubuntu.sources
+
+grep downloads.metasploit.com  /etc/apt/*/*
+grep apt.kubernetes.io   /etc/apt/*/*
+
+sudo rm /etc/apt/sources.list.d/metasploit-framework.list
+sudo rm /etc/apt/sources.list.d/kubernetes.list
+
+sudo dpkg --configure -a
